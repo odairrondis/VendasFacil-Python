@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ cliente.nome }} - Vendas App{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <!-- Cabeçalho -->
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-bold">
+                    <i class="fas fa-user"></i> {{ cliente.nome }}
+                </h1>
+                {% if cliente.ativo %}
+                    <span class="badge bg-success">Ativo</span>
+                {% else %}
+                    <span class="badge bg-danger">Inativo</span>
+                {% endif %}
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'vendas:cliente_edit' cliente.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <a href="{% url 'vendas:clientes_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informações do Cliente -->
+<div class="row mb-4">
+    <div class="col-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle"></i> Informações Básicas
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if cliente.email %}
+                <p class="mb-2">
+                    <strong><i class="fas fa-envelope"></i> Email:</strong><br>
+                    <a href="mailto:{{ cliente.email }}">{{ cliente.email }}</a>
+                </p>
+                {% endif %}
+
+                {% if cliente.telefone %}
+                <p class="mb-2">
+                    <strong><i class="fas fa-phone"></i> Telefone:</strong><br>
+                    <a href="tel:{{ cliente.telefone }}">{{ cliente.telefone }}</a>
+                </p>
+                {% endif %}
+
+                {% if cliente.cpf_cnpj %}
+                <p class="mb-2">
+                    <strong><i class="fas fa-id-card"></i> CPF/CNPJ:</strong><br>
+                    {{ cliente.cpf_cnpj }}
+                </p>
+                {% endif %}
+
+                <p class="mb-0">
+                    <strong><i class="fas fa-calendar"></i> Cadastrado em:</strong><br>
+                    {{ cliente.criado_em|date:"d/m/Y H:i" }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-map-marker-alt"></i> Endereço
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if cliente.endereco or cliente.cidade or cliente.estado or cliente.cep %}
+                    {% if cliente.endereco %}
+                    <p class="mb-2">
+                        <strong>Endereço:</strong><br>
+                        {{ cliente.endereco }}
+                    </p>
+                    {% endif %}
+
+                    {% if cliente.cidade or cliente.estado %}
+                    <p class="mb-2">
+                        <strong>Cidade/Estado:</strong><br>
+                        {{ cliente.cidade }}{% if cliente.estado %}, {{ cliente.estado }}{% endif %}
+                    </p>
+                    {% endif %}
+
+                    {% if cliente.cep %}
+                    <p class="mb-0">
+                        <strong>CEP:</strong><br>
+                        {{ cliente.cep }}
+                    </p>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted">Nenhum endereço cadastrado</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resumo de Vendas -->
+<div class="row mb-4">
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-shopping-cart" style="font-size: 2rem; color: #3498db;"></i>
+                <h3 class="mt-2 fw-bold">{{ total_vendas }}</h3>
+                <p class="text-muted mb-0">Vendas</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-money-bill-wave" style="font-size: 2rem; color: #27ae60;"></i>
+                <h3 class="mt-2 fw-bold">R$ {{ valor_total_vendas|floatformat:2 }}</h3>
+                <p class="text-muted mb-0">Faturamento</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contas a Receber -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-arrow-down"></i> Contas a Receber
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if contas_receber %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Venda</th>
+                                    <th>Valor</th>
+                                    <th>Vencimento</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for conta in contas_receber %}
+                                <tr>
+                                    <td>#{{ conta.venda.id }}</td>
+                                    <td>R$ {{ conta.valor|floatformat:2 }}</td>
+                                    <td>{{ conta.data_vencimento|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if conta.status == 'pago' %}
+                                            <span class="badge bg-success">Pago</span>
+                                        {% elif conta.status == 'vencido' %}
+                                            <span class="badge bg-danger">Vencido</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Pendente</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">Nenhuma conta a receber</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

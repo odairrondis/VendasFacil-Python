@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+
+{% block title %}Nova Venda - Vendas App{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <!-- Cabeçalho -->
+    <div class="col-12 mb-4">
+        <h1 class="fw-bold">
+            <i class="fas fa-shopping-cart"></i> Nova Venda
+        </h1>
+    </div>
+</div>
+
+<!-- Formulário -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" id="form-venda">
+                    {% csrf_token %}
+
+                    <!-- Informações Básicas -->
+                                <h5 class="mb-3 fw-bold">
+                                    <i class="fas fa-info-circle"></i> Informações da Venda
+                                </h5>
+
+                                <div class="row">
+                                    <!-- Cliente -->
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <label for="cliente" class="form-label">
+                                            <i class="fas fa-user"></i> Cliente *
+                                        </label>
+                                        <select class="form-select" id="cliente" name="cliente" required>
+                                            <option value="">Selecione um cliente</option>
+                                            {% for cliente in clientes %}
+                                            <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <!-- Forma de Pagamento -->
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <label for="forma_pagamento" class="form-label">
+                                            <i class="fas fa-credit-card"></i> Forma de Pagamento *
+                                        </label>
+                                        <select class="form-select" id="forma_pagamento" name="forma_pagamento" required>
+                                            {% for valor, label in formas_pagamento %}
+                                            <option value="{{ valor }}">{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Data de Vencimento e Parcelas -->
+                                <div class="row">
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <label for="data_vencimento" class="form-label">
+                                            <i class="fas fa-calendar"></i> Data de Vencimento *
+                                        </label>
+                                        <input 
+                                            type="date" 
+                                            class="form-control" 
+                                            id="data_vencimento" 
+                                            name="data_vencimento"
+                                            required
+                                        >
+                                    </div>
+
+                                    <!-- Parcelas -->
+                                    <div class="col-12 col-md-6 mb-3">
+                                        <label for="parcelas" class="form-label">
+                                            <i class="fas fa-layer-group"></i> Número de Parcelas *
+                                        </label>
+                                        <input 
+                                            type="number" 
+                                            class="form-control" 
+                                            id="parcelas" 
+                                            name="parcelas"
+                                            min="1"
+                                            max="12"
+                                            value="1"
+                                            required
+                                        >
+                                        <small class="text-muted">Cada parcela vencerá no mesmo dia do mês seguinte</small>
+                                    </div>
+                                </div>
+
+                                <!-- Observações -->
+                                <div class="mb-3">
+                                    <label for="observacoes" class="form-label">
+                                        <i class="fas fa-comment"></i> Observações
+                                    </label>
+                                    <textarea 
+                                        class="form-control" 
+                                        id="observacoes" 
+                                        name="observacoes" 
+                                        rows="2"
+                                        placeholder="Observações sobre a venda"
+                                    ></textarea>
+                                </div>
+
+                    <!-- Produtos -->
+                            <h5 class="mb-3 fw-bold mt-4">
+                                <i class="fas fa-box"></i> Produtos
+                            </h5>
+
+                            <div class="table-responsive mb-3">
+                                <table class="table table-bordered" id="tabela-produtos">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Produto</th>
+                                            <th style="width: 120px;">Quantidade</th>
+                                            <th style="width: 150px;">Preço Unit.</th>
+                                            <th style="width: 80px;">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="itens-venda">
+                                        <!-- Itens serão adicionados aqui -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Resumo do Total -->
+                            <div class="alert alert-info mb-3">
+                                <strong><i class="fas fa-calculator"></i> Total da Venda:</strong>
+                                <h4 class="mb-0 mt-2" id="total-venda">R$ 0,00</h4>
+                            </div>
+
+                            <!-- Botão para adicionar produto -->
+                            <button type="button" class="btn btn-secondary mb-3" onclick="adicionarProduto()">
+                                <i class="fas fa-plus"></i> Adicionar Produto
+                            </button>
+                    <!-- Botões de ação -->
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-save"></i> Criar Venda
+                        </button>
+                        <a href="{% url 'vendas:vendas_list' %}" class="btn btn-secondary flex-grow-1">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para adicionar produtos -->
+<!-- Script para adicionar produtos -->
+<script>
+    let contador = 0;
+
+    function adicionarProduto() {
+        contador++;
+        const html = `
+            <tr id="item-${contador}">
+                <td>
+                    <select class="form-select form-select-sm produto-select" name="produto_id[]" data-id="${contador}" onchange="atualizarPreco(this)" required>
+                        <option value="">Selecione um produto</option>
+                        {% for produto in produtos %}
+                        <option value="{{ produto.id }}" data-preco="{{ produto.preco }}">
+                            {{ produto.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <input type="number" class="form-control form-control-sm quantidade" name="quantidade[]" 
+                           min="1" value="1" onkeyup="calcularTotal()" onchange="calcularTotal()" required>
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm preco-unitario" name="preco[]" 
+                           value="0,00" readonly>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removerProduto(${contador})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        document.getElementById('itens-venda').insertAdjacentHTML('beforeend', html);
+    }
+
+    function atualizarPreco(selectElement) {
+        const precoSelecionado = selectElement.options[selectElement.selectedIndex].dataset.preco;
+        const row = selectElement.closest('tr');
+        const precoInput = row.querySelector('.preco-unitario');
+        
+        if (precoSelecionado) {
+            const precoNumerico = parseFloat(precoSelecionado);
+            precoInput.value = precoNumerico.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        } else {
+            precoInput.value = '0,00';
+        }
+        
+        calcularTotal();
+    }
+
+        function calcularTotal() {
+            let total = 0;
+            
+            document.querySelectorAll('#itens-venda tr').forEach(row => {
+                const quantidadeInput = row.querySelector('.quantidade');
+                const precoInput = row.querySelector('.preco-unitario');
+                
+                if (quantidadeInput && precoInput) {
+                    const precoTexto = precoInput.value.replace('R$ ', '').replace(',', '.');
+                    
+                    const subtotal = quantidade * preco;
+                    total += subtotal;
+                }
+            });
+            
+            const totalElement = document.getElementById('total-venda');
+            if (totalElement) {
+                totalElement.textContent = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            }
+        }
+
+    function removerProduto(id) {
+        const row = document.getElementById(`item-${id}`);
+        if (row) {
+            row.remove();
+            calcularTotal();
+        }
+    }
+
+    // Validação ao enviar o formulário
+    document.getElementById('form-venda').addEventListener('submit', function(e) {
+        const itens = document.querySelectorAll('#itens-venda tr');
+        if (itens.length === 0) {
+            e.preventDefault();
+            alert('Adicione pelo menos um produto à venda!');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

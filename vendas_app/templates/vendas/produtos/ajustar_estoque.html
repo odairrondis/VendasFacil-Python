@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Ajustar Estoque - Vendas App{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <!-- Cabeçalho -->
+    <div class="col-12 mb-4">
+        <h1 class="fw-bold">
+            <i class="fas fa-boxes"></i> Ajustar Estoque
+        </h1>
+        <p class="text-muted">Produto: <strong>{{ produto.nome }}</strong></p>
+    </div>
+</div>
+
+<!-- Formulário -->
+<div class="row">
+    <div class="col-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-edit"></i> Ajuste de Estoque
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Estoque Atual -->
+                <div class="alert alert-info mb-4">
+                    <strong><i class="fas fa-info-circle"></i> Estoque Atual:</strong> 
+                    <h4 class="mb-0 mt-2">{{ produto.estoque }} unidades</h4>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <!-- Operação -->
+                    <div class="mb-3">
+                        <label for="operacao" class="form-label">
+                            <i class="fas fa-exchange-alt"></i> Operação *
+                        </label>
+                        <select class="form-select" id="operacao" name="operacao" required>
+                            <option value="adicionar">Adicionar ao estoque</option>
+                            <option value="remover">Remover do estoque</option>
+                        </select>
+                    </div>
+
+                    <!-- Quantidade -->
+                    <div class="mb-3">
+                        <label for="quantidade" class="form-label">
+                            <i class="fas fa-cubes"></i> Quantidade *
+                        </label>
+                        <input 
+                            type="number" 
+                            class="form-control" 
+                            id="quantidade" 
+                            name="quantidade" 
+                            placeholder="0"
+                            min="1"
+                            required
+                        >
+                    </div>
+
+                    <!-- Motivo -->
+                    <div class="mb-4">
+                        <label for="motivo" class="form-label">
+                            <i class="fas fa-comment"></i> Motivo
+                        </label>
+                        <textarea 
+                            class="form-control" 
+                            id="motivo" 
+                            name="motivo" 
+                            rows="3"
+                            placeholder="Ex: Compra de fornecedor, devolução de cliente, etc."
+                        ></textarea>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-save"></i> Ajustar Estoque
+                        </button>
+                        <a href="{% url 'vendas:produto_detail' produto.pk %}" class="btn btn-secondary flex-grow-1">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if edicao %}Editar{% else %}Novo{% endif %} Produto - Vendas App{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <!-- Cabeçalho -->
+    <div class="col-12 mb-4">
+        <h1 class="fw-bold">
+            <i class="fas fa-box-plus"></i> 
+            {% if edicao %}Editar Produto{% else %}Novo Produto{% endif %}
+        </h1>
+    </div>
+</div>
+
+<!-- Formulário -->
+<div class="row">
+    <div class="col-12 col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <!-- Informações Básicas -->
+                    <h5 class="mb-3 fw-bold">
+                        <i class="fas fa-info-circle"></i> Informações Básicas
+                    </h5>
+
+                    <!-- Nome -->
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">
+                            <i class="fas fa-box"></i> Nome *
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="nome" 
+                            name="nome" 
+                            placeholder="Nome do produto"
+                            value="{% if produto %}{{ produto.nome }}{% endif %}"
+                            required
+                        >
+                    </div>
+
+                    <!-- Descrição -->
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">
+                            <i class="fas fa-align-left"></i> Descrição
+                        </label>
+                        <textarea 
+                            class="form-control" 
+                            id="descricao" 
+                            name="descricao" 
+                            rows="3"
+                            placeholder="Descrição do produto"
+                        >{% if produto %}{{ produto.descricao }}{% endif %}</textarea>
+                    </div>
+
+                    <!-- Marca -->
+                    <div class="mb-3">
+                        <label for="marca" class="form-label">
+                            <i class="fas fa-tag"></i> Marca
+                        </label>
+                        <select class="form-select" id="marca" name="marca">
+                            <option value="">Selecione uma marca</option>
+                            {% for marca in marcas %}
+                            <option value="{{ marca.id }}" {% if produto.marca.id == marca.id %}selected{% endif %}>
+                                {{ marca.nome }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Preço e Estoque -->
+                    <h5 class="mb-3 fw-bold mt-4">
+                        <i class="fas fa-money-bill-wave"></i> Preço e Estoque
+                    </h5>
+
+                    <!-- Preço -->
+                    <div class="mb-3">
+                        <label for="preco" class="form-label">
+                            <i class="fas fa-dollar-sign"></i> Preço *
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input 
+                                type="number" 
+                                class="form-control" 
+                                id="preco" 
+                                name="preco" 
+                                placeholder="0,00"
+                                step="0.01"
+                                min="0"
+                                value="{% if produto %}{{ produto.preco }}{% endif %}"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Estoque -->
+                    <div class="mb-3">
+                        <label for="estoque" class="form-label">
+                            <i class="fas fa-boxes"></i> Estoque
+                        </label>
+                        <input 
+                            type="number" 
+                            class="form-control" 
+                            id="estoque" 
+                            name="estoque" 
+                            placeholder="0"
+                            min="0"
+                            value="{% if produto %}{{ produto.estoque }}{% else %}0{% endif %}"
+                        >
+                        <small class="text-muted">Quantidade disponível em estoque</small>
+                    </div>
+
+                    <!-- Status -->
+                    {% if edicao %}
+                    <h5 class="mb-3 fw-bold mt-4">
+                        <i class="fas fa-toggle-on"></i> Status
+                    </h5>
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input 
+                                class="form-check-input" 
+                                type="checkbox" 
+                                id="ativo" 
+                                name="ativo"
+                                {% if produto.ativo %}checked{% endif %}
+                            >
+                            <label class="form-check-label" for="ativo">
+                                Produto Ativo
+                            </label>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Botões -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-save"></i> 
+                            {% if edicao %}Atualizar{% else %}Criar{% endif %} Produto
+                        </button>
+                        <a href="{% url 'vendas:produtos_list' %}" class="btn btn-secondary flex-grow-1">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

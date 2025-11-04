@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if edicao %}Editar{% else %}Novo{% endif %} Boleto - Vendas App{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <!-- Cabeçalho -->
+    <div class="col-12 mb-4">
+        <h1 class="fw-bold">
+            <i class="fas fa-file-invoice-dollar"></i> 
+            {% if edicao %}Editar Boleto{% else %}Novo Boleto{% endif %}
+        </h1>
+    </div>
+</div>
+
+<!-- Formulário -->
+<div class="row">
+    <div class="col-12 col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <!-- Descrição -->
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">
+                            <i class="fas fa-align-left"></i> Descrição *
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="descricao" 
+                            name="descricao" 
+                            placeholder="Ex: Aluguel, Fornecedor XYZ, etc."
+                            value="{% if conta %}{{ conta.descricao }}{% endif %}"
+                            required
+                        >
+                    </div>
+
+                    <!-- Valor -->
+                    <div class="mb-3">
+                        <label for="valor" class="form-label">
+                            <i class="fas fa-dollar-sign"></i> Valor *
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input 
+                                type="number" 
+                                class="form-control" 
+                                id="valor" 
+                                name="valor" 
+                                placeholder="0,00"
+                                step="0.01"
+                                min="0.01"
+                                value="{% if conta %}{{ conta.valor }}{% endif %}"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Data de Vencimento -->
+                    <div class="mb-3">
+                        <label for="data_vencimento" class="form-label">
+                            <i class="fas fa-calendar"></i> Data de Vencimento *
+                        </label>
+                        <input 
+                            type="date" 
+                            class="form-control" 
+                            id="data_vencimento" 
+                            name="data_vencimento"
+                            value="{% if conta %}{{ conta.data_vencimento|date:'Y-m-d' }}{% endif %}"
+                            required
+                        >
+                    </div>
+
+                    <!-- Observações -->
+                    <div class="mb-4">
+                        <label for="observacoes" class="form-label">
+                            <i class="fas fa-comment"></i> Observações
+                        </label>
+                        <textarea 
+                            class="form-control" 
+                            id="observacoes" 
+                            name="observacoes" 
+                            rows="3"
+                            placeholder="Observações sobre o boleto"
+                        >{% if conta %}{{ conta.observacoes }}{% endif %}</textarea>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-save"></i> 
+                            {% if edicao %}Atualizar{% else %}Criar{% endif %} Boleto
+                        </button>
+                        <a href="{% url 'vendas:contas_pagar_list' %}" class="btn btn-secondary flex-grow-1">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

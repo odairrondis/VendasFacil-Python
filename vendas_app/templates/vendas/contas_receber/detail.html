@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Conta #{{ conta.id }} - Vendas App{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <!-- Cabeçalho -->
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-bold">
+                    <i class="fas fa-arrow-down"></i> Conta #{{ conta.id }}
+                </h1>
+                {% if conta.status == 'pago' %}
+                    <span class="badge bg-success">Pago</span>
+                {% elif conta.status == 'vencido' %}
+                    <span class="badge bg-danger">Vencido</span>
+                {% else %}
+                    <span class="badge bg-warning">Pendente</span>
+                {% endif %}
+            </div>
+            <div class="d-flex gap-2">
+                {% if conta.status != 'pago' %}
+                <a href="{% url 'vendas:conta_receber_marcar_pago' conta.pk %}" class="btn btn-success">
+                    <i class="fas fa-check"></i> Marcar como Pago
+                </a>
+                {% else %}
+                <a href="{% url 'vendas:conta_receber_marcar_nao_pago' conta.pk %}" class="btn btn-warning">
+                    <i class="fas fa-undo"></i> Marcar como Não Pago
+                </a>
+                {% endif %}
+                <a href="{% url 'vendas:contas_receber_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informações da Conta -->
+<div class="row mb-4">
+    <div class="col-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle"></i> Informações da Conta
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>Valor:</strong><br>
+                    <h4 class="text-primary">R$ {{ conta.valor|floatformat:2 }}</h4>
+                </p>
+                <p class="mb-2">
+                    <strong>Data de Vencimento:</strong><br>
+                    {{ conta.data_vencimento|date:"d/m/Y" }}
+                </p>
+                {% if conta.data_pagamento %}
+                <p class="mb-2">
+                    <strong>Data de Pagamento:</strong><br>
+                    {{ conta.data_pagamento|date:"d/m/Y" }}
+                </p>
+                {% endif %}
+                {% if conta.observacoes %}
+                <p class="mb-0">
+                    <strong>Observações:</strong><br>
+                    {{ conta.observacoes }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user"></i> Cliente
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>{{ conta.cliente.nome }}</strong>
+                </p>
+                {% if conta.cliente.email %}
+                <p class="mb-2">
+                    <i class="fas fa-envelope"></i> 
+                    <a href="mailto:{{ conta.cliente.email }}">{{ conta.cliente.email }}</a>
+                </p>
+                {% endif %}
+                {% if conta.cliente.telefone %}
+                <p class="mb-2">
+                    <i class="fas fa-phone"></i> 
+                    <a href="tel:{{ conta.cliente.telefone }}">{{ conta.cliente.telefone }}</a>
+                </p>
+                {% endif %}
+                {% if conta.cliente.cpf_cnpj %}
+                <p class="mb-0">
+                    <i class="fas fa-id-card"></i> {{ conta.cliente.cpf_cnpj }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Venda Relacionada -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-shopping-cart"></i> Venda Relacionada #{{ venda.id }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>Data da Venda:</strong> {{ venda.data_venda|date:"d/m/Y H:i" }}
+                </p>
+                <p class="mb-2">
+                    <strong>Forma de Pagamento:</strong> {{ venda.get_forma_pagamento_display }}
+                </p>
+                <p class="mb-3">
+                    <strong>Valor Total:</strong> R$ {{ venda.valor_total|floatformat:2 }}
+                </p>
+
+                <h6 class="fw-bold mb-2">Produtos:</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Produto</th>
+                                <th>Quantidade</th>
+                                <th>Preço</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in itens %}
+                            <tr>
+                                <td>{{ item.produto.nome }}</td>
+                                <td>{{ item.quantidade }}</td>
+                                <td>R$ {{ item.preco_unitario|floatformat:2 }}</td>
+                                <td>R$ {{ item.subtotal|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-3">
+                    <a href="{% url 'vendas:venda_detail' venda.pk %}" class="btn btn-sm btn-info">
+                        <i class="fas fa-eye"></i> Ver Venda Completa
+                    </a>
+                    <a href="{% url 'vendas:venda_gerar_pdf' venda.pk %}" class="btn btn-sm btn-success">
+                        <i class="fas fa-file-pdf"></i> Baixar PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

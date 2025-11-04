@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Boleto #{{ conta.id }} - Vendas App{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <!-- Cabeçalho -->
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-bold">
+                    <i class="fas fa-file-invoice-dollar"></i> Boleto #{{ conta.id }}
+                </h1>
+                {% if conta.status == 'pago' %}
+                    <span class="badge bg-success">Pago</span>
+                {% elif conta.status == 'vencido' %}
+                    <span class="badge bg-danger">Vencido</span>
+                {% else %}
+                    <span class="badge bg-warning">Pendente</span>
+                {% endif %}
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'vendas:conta_pagar_edit' conta.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                {% if conta.status != 'pago' %}
+                <a href="{% url 'vendas:conta_pagar_marcar_pago' conta.pk %}" class="btn btn-success">
+                    <i class="fas fa-check"></i> Marcar como Pago
+                </a>
+                {% else %}
+                <a href="{% url 'vendas:conta_pagar_marcar_nao_pago' conta.pk %}" class="btn btn-warning">
+                    <i class="fas fa-undo"></i> Marcar como Não Pago
+                </a>
+                {% endif %}
+                <a href="{% url 'vendas:contas_pagar_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informações do Boleto -->
+<div class="row">
+    <div class="col-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle"></i> Informações do Boleto
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>Descrição:</strong><br>
+                    {{ conta.descricao }}
+                </p>
+                <p class="mb-2">
+                    <strong>Valor:</strong><br>
+                    <h4 class="text-danger">R$ {{ conta.valor|floatformat:2 }}</h4>
+                </p>
+                <p class="mb-2">
+                    <strong>Data de Vencimento:</strong><br>
+                    {{ conta.data_vencimento|date:"d/m/Y" }}
+                </p>
+                {% if conta.data_pagamento %}
+                <p class="mb-0">
+                    <strong>Data de Pagamento:</strong><br>
+                    {{ conta.data_pagamento|date:"d/m/Y" }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-comment"></i> Observações
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if conta.observacoes %}
+                    {{ conta.observacoes }}
+                {% else %}
+                    <p class="text-muted">Nenhuma observação</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

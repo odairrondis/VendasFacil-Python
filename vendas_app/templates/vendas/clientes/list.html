@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}Clientes - Vendas App{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <!-- Cabeçalho -->
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-bold">
+                    <i class="fas fa-users"></i> Clientes
+                </h1>
+                <p class="text-muted">Total: {{ total_clientes }} cliente(s)</p>
+            </div>
+            <a href="{% url 'vendas:cliente_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Novo Cliente
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros e Busca -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="GET" action="{% url 'vendas:clientes_list' %}" class="row g-3">
+                    <!-- Busca por nome -->
+                    <div class="col-12 col-md-8">
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            name="busca" 
+                            placeholder="Buscar por nome..."
+                            value="{{ busca }}"
+                        >
+                    </div>
+
+                    <!-- Filtro por status -->
+                    <div class="col-12 col-md-4">
+                        <select class="form-select" name="status" onchange="this.form.submit()">
+                            <option value="ativo" {% if status_filtro == 'ativo' %}selected{% endif %}>
+                                Ativos
+                            </option>
+                            <option value="inativo" {% if status_filtro == 'inativo' %}selected{% endif %}>
+                                Inativos
+                            </option>
+                            <option value="todos" {% if status_filtro == 'todos' %}selected{% endif %}>
+                                Todos
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Botão de busca -->
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-info w-100">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de Clientes -->
+<div class="row">
+    <div class="col-12">
+        {% if clientes %}
+            <!-- Versão Desktop (Tabela) -->
+            <div class="d-none d-md-block">
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>Telefone</th>
+                                    <th>CPF/CNPJ</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cliente in clientes %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ cliente.nome }}</strong>
+                                    </td>
+                                    <td>{{ cliente.email|default:"-" }}</td>
+                                    <td>{{ cliente.telefone|default:"-" }}</td>
+                                    <td>{{ cliente.cpf_cnpj|default:"-" }}</td>
+                                    <td>
+                                        {% if cliente.ativo %}
+                                            <span class="badge bg-success">Ativo</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inativo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'vendas:cliente_detail' cliente.pk %}" 
+                                           class="btn btn-sm btn-info" title="Visualizar">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'vendas:cliente_edit' cliente.pk %}" 
+                                           class="btn btn-sm btn-warning" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'vendas:cliente_delete' cliente.pk %}" 
+                                           class="btn btn-sm btn-danger" title="Deletar">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Versão Mobile (Cards) -->
+            <div class="d-md-none">
+                {% for cliente in clientes %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">{{ cliente.nome }}</h5>
+                            {% if cliente.ativo %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inativo</span>
+                            {% endif %}
+                        </div>
+
+                        {% if cliente.email %}
+                        <p class="mb-1">
+                            <i class="fas fa-envelope"></i> 
+                            <small>{{ cliente.email }}</small>
+                        </p>
+                        {% endif %}
+
+                        {% if cliente.telefone %}
+                        <p class="mb-1">
+                            <i class="fas fa-phone"></i> 
+                            <small>{{ cliente.telefone }}</small>
+                        </p>
+                        {% endif %}
+
+                        {% if cliente.cpf_cnpj %}
+                        <p class="mb-3">
+                            <i class="fas fa-id-card"></i> 
+                            <small>{{ cliente.cpf_cnpj }}</small>
+                        </p>
+                        {% endif %}
+
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'vendas:cliente_detail' cliente.pk %}" 
+                               class="btn btn-sm btn-info flex-grow-1">
+                                <i class="fas fa-eye"></i> Ver
+                            </a>
+                            <a href="{% url 'vendas:cliente_edit' cliente.pk %}" 
+                               class="btn btn-sm btn-warning flex-grow-1">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a href="{% url 'vendas:cliente_delete' cliente.pk %}" 
+                               class="btn btn-sm btn-danger flex-grow-1">
+                                <i class="fas fa-trash"></i> Deletar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Mensagem quando não há clientes -->
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-inbox" style="font-size: 3rem; color: #bbb;"></i>
+                    <h5 class="mt-3 text-muted">Nenhum cliente encontrado</h5>
+                    <p class="text-muted mb-3">Comece criando seu primeiro cliente</p>
+                    <a href="{% url 'vendas:cliente_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Novo Cliente
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

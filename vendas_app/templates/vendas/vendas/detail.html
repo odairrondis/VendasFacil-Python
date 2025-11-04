@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block title %}Venda #{{ venda.id }} - Vendas App{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <!-- Cabeçalho -->
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-bold">
+                    <i class="fas fa-shopping-cart"></i> Venda #{{ venda.id }}
+                </h1>
+                <p class="text-muted">{{ venda.data_venda|date:"d/m/Y H:i" }}</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'vendas:venda_gerar_pdf' venda.pk %}" class="btn btn-success">
+                    <i class="fas fa-file-pdf"></i> Baixar PDF
+                </a>
+                <a href="{% url 'vendas:vendas_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informações do Cliente -->
+<div class="row mb-4">
+    <div class="col-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user"></i> Cliente
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>{{ venda.cliente.nome }}</strong>
+                </p>
+                {% if venda.cliente.email %}
+                <p class="mb-2">
+                    <i class="fas fa-envelope"></i> {{ venda.cliente.email }}
+                </p>
+                {% endif %}
+                {% if venda.cliente.telefone %}
+                <p class="mb-2">
+                    <i class="fas fa-phone"></i> {{ venda.cliente.telefone }}
+                </p>
+                {% endif %}
+                {% if venda.cliente.cpf_cnpj %}
+                <p class="mb-0">
+                    <i class="fas fa-id-card"></i> {{ venda.cliente.cpf_cnpj }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-credit-card"></i> Pagamento
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>Forma:</strong> {{ venda.get_forma_pagamento_display }}
+                </p>
+                <p class="mb-2">
+                    <strong>Vencimento:</strong> {{ venda.data_vencimento|date:"d/m/Y" }}
+                </p>
+                {% if conta_receber %}
+                <p class="mb-0">
+                    <strong>Status:</strong> 
+                    {% if conta_receber.status == 'pago' %}
+                        <span class="badge bg-success">Pago</span>
+                    {% elif conta_receber.status == 'vencido' %}
+                        <span class="badge bg-danger">Vencido</span>
+                    {% else %}
+                        <span class="badge bg-warning">Pendente</span>
+                    {% endif %}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Produtos -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-box"></i> Produtos
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Produto</th>
+                                <th>Quantidade</th>
+                                <th>Preço Unit.</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in itens %}
+                            <tr>
+                                <td>{{ item.produto.nome }}</td>
+                                <td>{{ item.quantidade }}</td>
+                                <td>R$ {{ item.preco_unitario|floatformat:2 }}</td>
+                                <td><strong>R$ {{ item.subtotal|floatformat:2 }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-light">
+                                <td colspan="3" class="text-end"><strong>TOTAL:</strong></td>
+                                <td><strong>R$ {{ venda.valor_total|floatformat:2 }}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Observações -->
+{% if venda.observacoes %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-comment"></i> Observações
+                </h5>
+            </div>
+            <div class="card-body">
+                {{ venda.observacoes }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Contas a Receber -->
+{% if contas_receber %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-arrow-down"></i> Contas a Receber ({{ contas_receber|length }} parcela(s))
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Parcela</th>
+                                <th>Valor</th>
+                                <th>Vencimento</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for conta in contas_receber %}
+                            <tr>
+                                <td>
+                                    {% if conta.observacoes %}
+                                        {{ conta.observacoes }}
+                                    {% else %}
+                                        Parcela Única
+                                    {% endif %}
+                                </td>
+                                <td><strong>R$ {{ conta.valor|floatformat:2 }}</strong></td>
+                                <td>{{ conta.data_vencimento|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if conta.status == 'pago' %}
+                                        <span class="badge bg-success">Pago</span>
+                                    {% elif conta.status == 'vencido' %}
+                                        <span class="badge bg-danger">Vencido</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Pendente</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

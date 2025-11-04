@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if edicao %}Editar{% else %}Novo{% endif %} Cliente - Vendas App{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <!-- Cabeçalho -->
+    <div class="col-12 mb-4">
+        <h1 class="fw-bold">
+            <i class="fas fa-user-plus"></i> 
+            {% if edicao %}Editar Cliente{% else %}Novo Cliente{% endif %}
+        </h1>
+    </div>
+</div>
+
+<!-- Formulário -->
+<div class="row">
+    <div class="col-12 col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <!-- Informações Básicas -->
+                    <h5 class="mb-3 fw-bold">
+                        <i class="fas fa-info-circle"></i> Informações Básicas
+                    </h5>
+
+                    <!-- Nome -->
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">
+                            <i class="fas fa-user"></i> Nome *
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="nome" 
+                            name="nome" 
+                            placeholder="Nome completo do cliente"
+                            value="{% if cliente %}{{ cliente.nome }}{% endif %}"
+                            required
+                        >
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope"></i> Email
+                        </label>
+                        <input 
+                            type="email" 
+                            class="form-control" 
+                            id="email" 
+                            name="email" 
+                            placeholder="email@example.com"
+                            value="{% if cliente %}{{ cliente.email }}{% endif %}"
+                        >
+                    </div>
+
+                    <!-- Telefone -->
+                    <div class="mb-3">
+                        <label for="telefone" class="form-label">
+                            <i class="fas fa-phone"></i> Telefone
+                        </label>
+                        <input 
+                            type="tel" 
+                            class="form-control" 
+                            id="telefone" 
+                            name="telefone" 
+                            placeholder="(11) 99999-9999"
+                            value="{% if cliente %}{{ cliente.telefone }}{% endif %}"
+                        >
+                    </div>
+
+                    <!-- CPF/CNPJ -->
+                    <div class="mb-3">
+                        <label for="cpf_cnpj" class="form-label">
+                            <i class="fas fa-id-card"></i> CPF/CNPJ
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="cpf_cnpj" 
+                            name="cpf_cnpj" 
+                            placeholder="000.000.000-00"
+                            value="{% if cliente %}{{ cliente.cpf_cnpj }}{% endif %}"
+                        >
+                    </div>
+
+                    <!-- Endereço -->
+                    <h5 class="mb-3 fw-bold mt-4">
+                        <i class="fas fa-map-marker-alt"></i> Endereço
+                    </h5>
+
+                    <!-- Rua -->
+                    <div class="mb-3">
+                        <label for="endereco" class="form-label">
+                            <i class="fas fa-road"></i> Endereço
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="endereco" 
+                            name="endereco" 
+                            placeholder="Rua, número, complemento"
+                            value="{% if cliente %}{{ cliente.endereco }}{% endif %}"
+                        >
+                    </div>
+
+                    <!-- Cidade e Estado -->
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="cidade" class="form-label">
+                                <i class="fas fa-city"></i> Cidade
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="cidade" 
+                                name="cidade" 
+                                placeholder="São Paulo"
+                                value="{% if cliente %}{{ cliente.cidade }}{% endif %}"
+                            >
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="estado" class="form-label">
+                                <i class="fas fa-map"></i> Estado
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="estado" 
+                                name="estado" 
+                                placeholder="SP"
+                                maxlength="2"
+                                value="{% if cliente %}{{ cliente.estado }}{% endif %}"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- CEP -->
+                    <div class="mb-3">
+                        <label for="cep" class="form-label">
+                            <i class="fas fa-mailbox"></i> CEP
+                        </label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="cep" 
+                            name="cep" 
+                            placeholder="00000-000"
+                            value="{% if cliente %}{{ cliente.cep }}{% endif %}"
+                        >
+                    </div>
+
+                    <!-- Status -->
+                    {% if edicao %}
+                    <h5 class="mb-3 fw-bold mt-4">
+                        <i class="fas fa-toggle-on"></i> Status
+                    </h5>
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input 
+                                class="form-check-input" 
+                                type="checkbox" 
+                                id="ativo" 
+                                name="ativo"
+                                {% if cliente.ativo %}checked{% endif %}
+                            >
+                            <label class="form-check-label" for="ativo">
+                                Cliente Ativo
+                            </label>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Botões -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-save"></i> 
+                            {% if edicao %}Atualizar{% else %}Criar{% endif %} Cliente
+                        </button>
+                        <a href="{% url 'vendas:clientes_list' %}" class="btn btn-secondary flex-grow-1">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

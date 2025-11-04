@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ produto.nome }} - Vendas App{% endblock %}
+
+{% block content %}
+<div class="row mt-4">
+    <!-- Cabeçalho -->
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-bold">
+                    <i class="fas fa-box"></i> {{ produto.nome }}
+                </h1>
+                {% if produto.ativo %}
+                    <span class="badge bg-success">Ativo</span>
+                {% else %}
+                    <span class="badge bg-danger">Inativo</span>
+                {% endif %}
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'vendas:produto_ajustar_estoque' produto.pk %}" class="btn btn-secondary">
+                    <i class="fas fa-boxes"></i> Ajustar Estoque
+                </a>
+                <a href="{% url 'vendas:produto_edit' produto.pk %}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <a href="{% url 'vendas:produtos_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informações do Produto -->
+<div class="row mb-4">
+    <div class="col-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle"></i> Informações Básicas
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if produto.marca %}
+                <p class="mb-2">
+                    <strong><i class="fas fa-tag"></i> Marca:</strong><br>
+                    {{ produto.marca.nome }}
+                </p>
+                {% endif %}
+
+                <p class="mb-2">
+                    <strong><i class="fas fa-dollar-sign"></i> Preço:</strong><br>
+                    R$ {{ produto.preco|floatformat:2 }}
+                </p>
+
+                {% if produto.descricao %}
+                <p class="mb-2">
+                    <strong><i class="fas fa-align-left"></i> Descrição:</strong><br>
+                    {{ produto.descricao }}
+                </p>
+                {% endif %}
+
+                <p class="mb-0">
+                    <strong><i class="fas fa-calendar"></i> Cadastrado em:</strong><br>
+                    {{ produto.criado_em|date:"d/m/Y H:i" }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-boxes"></i> Estoque
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    {% if produto.estoque > 0 %}
+                        <h2 class="fw-bold text-success">{{ produto.estoque }}</h2>
+                        <p class="text-muted">Unidades em estoque</p>
+                    {% elif produto.estoque == 0 %}
+                        <h2 class="fw-bold text-warning">0</h2>
+                        <p class="text-muted">Sem estoque</p>
+                    {% else %}
+                        <h2 class="fw-bold text-danger">{{ produto.estoque }}</h2>
+                        <p class="text-muted">Estoque negativo</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resumo de Vendas -->
+<div class="row mb-4">
+    <div class="col-12 col-sm-6">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-shopping-cart" style="font-size: 2rem; color: #3498db;"></i>
+                <h3 class="mt-2 fw-bold">{{ total_vendas }}</h3>
+                <p class="text-muted mb-0">Vendas</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-cubes" style="font-size: 2rem; color: #27ae60;"></i>
+                <h3 class="mt-2 fw-bold">{{ quantidade_vendida }}</h3>
+                <p class="text-muted mb-0">Unidades Vendidas</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
